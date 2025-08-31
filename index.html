@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluent Community Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(75, 0, 130, 0.9)), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><pattern id="palette" x="0" y="0" width="120" height="80" patternUnits="userSpaceOnUse"><ellipse cx="60" cy="40" rx="50" ry="25" fill="%234a1a4a" stroke="%236a2c93" stroke-width="2"/><circle cx="30" cy="35" r="6" fill="%23ff6b6b"/><circle cx="45" cy="35" r="6" fill="%234ecdc4"/><circle cx="60" cy="35" r="6" fill="%23ffe66d"/><circle cx="75" cy="35" r="6" fill="%23a8e6cf"/><circle cx="90" cy="35" r="6" fill="%23ff8b94"/><rect x="20" y="50" width="80" height="8" rx="4" fill="%23333"/></pattern></defs><rect width="100%25" height="100%25" fill="url(%23palette)"/></svg>');
+            background-size: 180px 120px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .quiz-container {
+            background: rgba(30, 0, 50, 0.95);
+            border: 2px solid #8B5CF6;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 700px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #C4B5FD;
+            font-size: 1.1rem;
+        }
+
+        .attempts-counter {
+            text-align: center;
+            color: #FED7D7;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .attempts-counter.warning {
+            color: #FF6B6B;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B5CF6, #EC4899);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .timer {
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 1.2rem;
+            color: #FED7D7;
+        }
+
+        .timer.warning {
+            color: #FF6B6B;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .question-container {
+            margin: 2rem 0;
+        }
+
+        .question-number {
+            color: #8B5CF6;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .question {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: grid;
+            gap: 0.8rem;
+        }
+
+        .option {
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .option:hover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .option.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22C55E;
+            animation: correctPulse 0.6s ease;
+        }
+
+        .option.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #EF4444;
+            animation: shake 0.6s ease;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .score-display {
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+        }
+
+        .results {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .results h2 {
+            margin-bottom: 1rem;
+            font-size: 2rem;
+            color: #8B5CF6;
+        }
+
+        .expressive-id {
+            margin: 2rem auto;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2));
+            border: 2px solid #8B5CF6;
+            border-radius: 20px;
+            max-width: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .expressive-id::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .id-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .id-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .id-badge {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .restart-btn, .mint-btn {
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover, .mint-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .restart-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: linear-gradient(135deg, rgba(30, 0, 50, 0.98), rgba(60, 0, 80, 0.98));
+            border: 2px solid #8B5CF6;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(139, 92, 246, 0.5);
+            backdrop-filter: blur(15px);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #8B5CF6;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #C4B5FD;
+            font-weight: bold;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            background: rgba(139, 92, 246, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 0.75rem;
+            border: 2px dashed rgba(139, 92, 246, 0.5);
+            border-radius: 10px;
+            text-align: center;
+            background: rgba(139, 92, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover .file-upload-label {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .preview-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 1rem auto;
+            display: block;
+            border: 2px solid #8B5CF6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn-secondary {
+            background: rgba(139, 92, 246, 0.3);
+            border: 2px solid rgba(139, 92, 246, 0.5);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(139, 92, 246, 0.5);
+            border-color: #8B5CF6;
+        }
+
+        .final-id-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(236, 72, 153, 0.9));
+            border: 3px solid #8B5CF6;
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .final-id-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #8B5CF6, #EC4899, #8B5CF6, #EC4899);
+            z-index: -1;
+            animation: borderGlow 3s linear infinite;
+        }
+
+        @keyframes borderGlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        .final-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1rem;
+            border: 4px solid white;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .final-username {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .final-rank {
+            font-size: 1.2rem;
+            color: #FED7D7;
+            margin-bottom: 0.5rem;
+        }
+
+        .final-details {
+            font-size: 1rem;
+            color: #C4B5FD;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="header">
+            <div class="logo">FLUENT</div>
+            <div class="subtitle">Community Knowledge Quiz</div>
+        </div>
+
+        <div id="quiz-content">
+            <div class="attempts-counter" id="attempts-counter">
+                Attempts: <span id="attempts-used">0</span>/2
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            
+            <div class="timer" id="timer">Time: 6s</div>
+            
+            <div class="score-display">
+                Score: <span id="score">0</span>/10 | Question: <span id="current-question">1</span>/10
+            </div>
+
+            <div class="question-container">
+                <div class="question-number" id="question-number">Question 1</div>
+                <div class="question" id="question-text"></div>
+                <div class="options" id="options-container"></div>
+            </div>
+        </div>
+
+        <div id="results" class="results hidden">
+            <h2 id="results-title"></h2>
+            <p id="results-text"></p>
+            
+            <div id="expressive-id" class="expressive-id">
+                <div class="id-header">🎨 EXPRESSIVE ID 🎨</div>
+                <div class="id-content">
+                    <div class="id-badge">F</div>
+                    <h3>Ready to Mint!</h3>
+                    <p>Score: <span id="final-score"></span>/10</p>
+                    <button class="mint-btn" onclick="openMintModal()">Mint Your ID</button>
+                </div>
+            </div>
+            
+            <button class="restart-btn" id="restart-btn" onclick="restartQuiz()">Try Again</button>
+        </div>
+    </div>
+
+    <!-- Mint Modal -->
+    <div id="mint-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">🎨 Create Your Expressive ID</div>
+                <p>Customize your Fluent community identity</p>
+            </div>
+            
+            <form id="mint-form">
+                <div class="form-group">
+                    <label class="form-label">Profile Picture</label>
+                    <div class="file-upload">
+                        <input type="file" id="profile-pic" accept="image/*" onchange="previewImage(this)">
+                        <label class="file-upload-label" for="profile-pic">
+                            📷 Click to upload your picture
+                        </label>
+                    </div>
+                    <img id="image-preview" class="preview-image hidden" alt="Preview">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" id="username" class="form-input" placeholder="Enter your username" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Blended Rank</label>
+                    <input type="text" id="blended-rank" class="form-input" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="discord-role">Role on Discord</label>
+                    <select id="discord-role" class="form-select" required>
+                        <option value="">Select your role</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Moderator">Moderator</option>
+                        <option value="Developer">Developer</option>
+                        <option value="Community Manager">Community Manager</option>
+                        <option value="Builder">Builder</option>
+                        <option value="Contributor">Contributor</option>
+                        <option value="Member">Member</option>
+                        <option value="Newcomer">Newcomer</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="gooner">Gooner?</label>
+                    <select id="gooner" class="form-select" required>
+                        <option value="">Select...</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+            </form>
+
+            <div class="modal-buttons">
+                <button type="button" class="btn-secondary" onclick="closeMintModal()">Cancel</button>
+                <button type="button" class="mint-btn" onclick="generateFinalID()">Generate ID</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final ID Modal -->
+    <div id="final-id-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">🎉 Your Expressive ID</div>
+            </div>
+            
+            <div class="final-id-card" id="final-id-card">
+                <img id="final-avatar" class="final-avatar" src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><circle cx='60' cy='60' r='60' fill='%238B5CF6'/><text x='60' y='70' text-anchor='middle' fill='white' font-size='48' font-weight='bold'>F</text></svg>" alt="Avatar">
+                <div class="final-username" id="final-username">Username</div>
+                <div class="final-rank" id="final-rank-display">Blended Rank: 0/10</div>
+                <div class="final-details">
+                    <div>Discord: <span id="final-discord"></span></div>
+                    <div>Gooner: <span id="final-gooner"></span></div>
+                    <div style="margin-top: 1rem; font-size: 0.9rem;">🎨 Fluent Expressive ID - Truly Blended 🎨</div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="button" class="btn-secondary" onclick="downloadID()">Download ID</button>
+                <button type="button" class="mint-btn" onclick="closeFinalModal()">Complete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allQuestions = [
+            {
+                question: "What is Fluent's primary innovation in blockchain technology?",
+                options: ["A pure EVM rollup", "A blended execution network", "A Solana fork", "A Bitcoin layer 2"],
+                correct: 1
+            },
+            {
+                question: "Which virtual machines does Fluent blend together?",
+                options: ["Only EVM", "EVM and SVM only", "Wasm, EVM, and SVM", "Only Wasm"],
+                correct: 2
+            },
+            {
+                question: "What is the intermediate representation that makes blended execution possible?",
+                options: ["rWasm", "eWasm", "LLVM", "WebAssembly"],
+                correct: 0
+            },
+            {
+                question: "How much funding did Fluent Labs raise in their Series A?",
+                options: ["$5M", "$8M", "$10M", "$12M"],
+                correct: 1
+            },
+            {
+                question: "What programming languages can developers use on Fluent?",
+                options: ["Only Solidity", "Rust and Solidity only", "Rust, TypeScript, Solidity and more", "Only JavaScript"],
+                correct: 2
+            },
+            {
+                question: "What is the name of Fluent's CLI tool for development?",
+                options: ["fluent-cli", "gblend", "blend-tool", "fluent-dev"],
+                correct: 1
+            },
+            {
+                question: "Fluent is built as which type of blockchain solution?",
+                options: ["Ethereum Layer 1", "Ethereum Layer 2", "Standalone blockchain", "Sidechain"],
+                correct: 1
+            },
+            {
+                question: "What is the name of the developer community program?",
+                options: ["Fluent Builders", "Blended Builders Club", "Developer Alliance", "Fluent Academy"],
+                correct: 1
+            },
+            {
+                question: "How much did Fluent raise in their Testnet Round?",
+                options: ["$1.5M", "$2.2M", "$3M", "$4M"],
+                correct: 1
+            },
+            {
+                question: "What makes Fluent different from other rollups?",
+                options: ["Faster transactions", "Lower fees", "Multi-VM blended execution", "Better UX"],
+                correct: 2
+            }
+        ];
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 6;
+        let timer;
+        let answered = false;
+        let attemptsUsed = 0;
+        let maxAttempts = 2;
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function initializeQuiz() {
+            questions = shuffleArray(allQuestions);
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('score').textContent = '0';
+            updateAttemptsDisplay();
+        }
+
+        function updateAttemptsDisplay() {
+            const counter = document.getElementById('attempts-counter');
+            const attemptsElement = document.getElementById('attempts-used');
+            attemptsElement.textContent = attemptsUsed;
+            
+            if (attemptsUsed >= maxAttempts) {
+                counter.classList.add('warning');
+                document.getElementById('restart-btn').disabled = true;
+                document.getElementById('restart-btn').textContent = 'Max Attempts Reached';
+            }
+        }
+
+        function startTimer() {
+            timeLeft = 6;
+            answered = false;
+            const timerElement = document.getElementById('timer');
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = `Time: ${timeLeft}s`;
+                
+                if (timeLeft <= 2) {
+                    timerElement.classList.add('warning');
+                } else {
+                    timerElement.classList.remove('warning');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    if (!answered) {
+                        handleTimeout();
+                    }
+                }
+            }, 1000);
+        }
+
+        function handleTimeout() {
+            answered = true;
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                option.classList.add('disabled');
+                if (index === questions[currentQuestion].correct) {
+                    option.classList.add('correct');
+                }
+            });
+            
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+
+        function displayQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('question-number').textContent = `Question ${currentQuestion + 1}`;
+            document.getElementById('question-text').textContent = question.question;
+            document.getElementById('current-question').textContent = currentQuestion + 1;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            updateProgress();
+            startTimer();
+        }
+
+        function selectOption(selectedIndex) {
+            if (answered) return;
+            
+            answered = true;
+            clearInterval(timer);
+            
+            const options = document.querySelectorAll('.option');
+            const correctIndex = questions[currentQuestion].correct;
+            
+            options.forEach((option, index) => {
+                option.classList.add('disabled');
+                if (index === correctIndex) {
+                    option.classList.add('correct');
+                }
+                if (index === selectedIndex && selectedIndex !== correctIndex) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            if (selectedIndex === correctIndex) {
+                score++;
+                document.getElementById('score').textContent = score;
+            }
+            
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+        }
+
+        function showResults() {
+            attemptsUsed++;
+            document.getElementById('quiz-content').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+            
+            const resultsTitle = document.getElementById('results-title');
+            const resultsText = document.getElementById('results-text');
+            const finalScoreSpan = document.getElementById('final-score');
+            
+            finalScoreSpan.textContent = score;
+            resultsTitle.textContent = 'Quiz Complete! 🎉';
+            resultsText.textContent = `You scored ${score}/10! Ready to mint your Expressive ID and join the Fluent community.`;
+            
+            updateAttemptsDisplay();
+        }
+
+        function restartQuiz() {
+            if (attemptsUsed >= maxAttempts) return;
+            
+            document.getElementById('quiz-content').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+            initializeQuiz();
+            displayQuestion();
+        }
+
+        function openMintModal() {
+            document.getElementById('mint-modal').classList.remove('hidden');
+            document.getElementById('blended-rank').value = `${score}/10 - ${getRankTitle(score)}`;
+        }
+
+        function closeMintModal() {
+            document.getElementById('mint-modal').classList.add('hidden');
+        }
+
+        function getRankTitle(score) {
+            if (score >= 9) return "Fluent Master";
+            if (score >= 7) return "Blended Expert";
+            if (score >= 5) return "Community Member";
+            if (score >= 3) return "Fluent Learner";
+            return "Newcomer";
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('image-preview');
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    
+                    const label = document.querySelector('.file-upload-label');
+                    label.textContent = '✅ Image selected - Click to change';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function generateFinalID() {
+            const username = document.getElementById('username').value;
+            const discordRole = document.getElementById('discord-role').value;
+            const gooner = document.getElementById('gooner').value;
+            const profilePic = document.getElementById('image-preview').src;
+            
+            if (!username || !discordRole || !gooner) {
+                alert('Please fill in all fields!');
+                return;
+            }
+            
+            // Update final ID card with user data
+            document.getElementById('final-username').textContent = username;
+            document.getElementById('final-rank-display').textContent = `Blended Rank: ${score}/10 - ${getRankTitle(score)}`;
+            document.getElementById('final-discord').textContent = discordRole;
+            document.getElementById('final-gooner').textContent = gooner;
+            
+            // Update avatar
+            if (profilePic && profilePic !== '' && !profilePic.includes('data:image/svg+xml')) {
+                document.getElementById('final-avatar').src = profilePic;
+            }
+            
+            // Close the form modal and show the final ID card popup
+            closeMintModal();
+            document.getElementById('final-id-modal').classList.remove('hidden');
+        }
+
+        function closeFinalModal() {
+            document.getElementById('final-id-modal').classList.add('hidden');
+            // Reset form
+            document.getElementById('mint-form').reset();
+            document.getElementById('image-preview').classList.add('hidden');
+            document.querySelector('.file-upload-label').textContent = '📷 Click to upload your picture';
+        }
+
+        function downloadID() {
+            // Create a canvas to render the ID card for download
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 400;
+            canvas.height = 500;
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 400, 500);
+            gradient.addColorStop(0, '#8B5CF6');
+            gradient.addColorStop(1, '#EC4899');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 400, 500);
+            
+            // Border
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(10, 10, 380, 480);
+            
+            // Text content
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🎨 FLUENT EXPRESSIVE ID 🎨', 200, 60);
+            
+            const username = document.getElementById('final-username').textContent;
+            const rank = document.getElementById('final-rank-display').textContent;
+            const discord = document.getElementById('final-discord').textContent;
+            const gooner = document.getElementById('final-gooner').textContent;
+            
+            ctx.font = 'bold 20px Arial';
+            ctx.fillText(username, 200, 120);
+            
+            ctx.font = '16px Arial';
+            ctx.fillText(rank, 200, 160);
+            ctx.fillText(`Discord: ${discord}`, 200, 190);
+            ctx.fillText(`Gooner: ${gooner}`, 200, 220);
+            
+            ctx.font = '14px Arial';
+            ctx.fillText('Truly Blended in the Fluent Ecosystem', 200, 460);
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = `${username}_fluent_expressive_id.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // Initialize quiz on page load
+        window.onload = function() {
+            initializeQuiz();
+            displayQuestion();
+        };
+    </script>
+</body>
+</html>
