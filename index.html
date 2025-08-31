@@ -1,125 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fluent Quiz</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      background: radial-gradient(circle at top, #0f0f0f, #000);
-      font-family: 'Inter', sans-serif;
-      color: white;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #0f0f0f, #000000);
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
     }
-    .fade-in {
-      animation: fadeIn 1s ease-in-out;
+    h1 {
+      text-align: center;
+      color: #00ff88;
+      text-shadow: 0 0 8px #00ff88;
     }
-    .slide-up {
-      animation: slideUp 0.8s ease-in-out;
+    .card {
+      background: rgba(20, 20, 20, 0.9);
+      border: 1px solid #00ff88;
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+      margin-bottom: 20px;
+    }
+    button {
+      background: #00ff88;
+      border: none;
+      padding: 10px 20px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    .hidden {
+      display: none;
+    }
+    .id-card {
+      background: linear-gradient(145deg, #101010, #1e1e1e);
+      border: 2px solid #00ff88;
+      border-radius: 20px;
+      padding: 20px;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.5);
+      animation: fadeIn 1s ease forwards;
+    }
+    .id-card img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 2px solid #00ff88;
+      margin-bottom: 10px;
+    }
+    .rank {
+      font-size: 1.2em;
+      color: #00ff88;
+      text-shadow: 0 0 10px #00ff88;
+      font-weight: bold;
+    }
+    footer {
+      margin-top: auto;
+      padding: 10px;
+      font-size: 0.9em;
+      color: #888;
+      font-style: italic;
     }
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen px-4">
-
-  <!-- Quiz Container -->
-  <div id="quizContainer" class="bg-neutral-900 shadow-xl rounded-2xl p-6 max-w-xl w-full fade-in">
-    <h1 class="text-3xl font-bold mb-4 text-center text-green-400">Fluent Quiz</h1>
-    
-    <form id="quizForm" class="space-y-6">
-      <div>
-        <label class="block mb-2 font-semibold">Enter your name</label>
-        <input type="text" id="userName" class="w-full p-2 rounded-lg bg-neutral-800 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-      </div>
-
-      <div>
-        <label class="block mb-2 font-semibold">Upload your avatar (PNG/JPG)</label>
-        <input type="file" id="avatarInput" accept="image/png, image/jpeg" class="w-full text-sm">
-      </div>
-
-      <!-- Example Questions -->
-      <div>
-        <p class="font-semibold mb-2">1. What does Fluent focus on?</p>
-        <label class="block"><input type="radio" name="q1" value="1"> DeFi</label>
-        <label class="block"><input type="radio" name="q1" value="0"> Gaming</label>
-      </div>
-
-      <div>
-        <p class="font-semibold mb-2">2. Which is a key feature of Fluent?</p>
-        <label class="block"><input type="radio" name="q2" value="1"> Expressive IDs</label>
-        <label class="block"><input type="radio" name="q2" value="0"> Photo filters</label>
-      </div>
-
-      <button type="submit" class="w-full py-2 rounded-lg bg-green-500 text-black font-bold hover:bg-green-400 transition-colors">
-        Submit & Generate ID
-      </button>
-    </form>
+<body>
+  <h1>Fluent Quiz</h1>
+  <div id="quizSection" class="card">
+    <label>Enter your name:</label><br>
+    <input type="text" id="userName" placeholder="Your name" /><br><br>
+    <label>Upload your avatar:</label><br>
+    <input type="file" id="avatarUpload" accept="image/png, image/jpeg" /><br><br>
+    <div id="questions"></div>
+    <button onclick="submitQuiz()">Submit Quiz</button>
   </div>
 
-  <!-- ID Card -->
-  <div id="idCard" class="hidden bg-neutral-900 shadow-2xl rounded-2xl p-6 max-w-md w-full mt-6 text-center slide-up">
-    <h2 class="text-xl font-bold mb-2 text-green-400">FLUENT EXPRESSIVE ID</h2>
-    <div id="avatarBox" class="flex justify-center mb-4"></div>
-    <p id="displayName" class="text-lg font-semibold"></p>
-    <p id="quizResult" class="text-green-300 mt-2"></p>
-    <p id="userRank" class="text-yellow-400 font-bold mt-1"></p>
+  <div id="idCard" class="id-card hidden">
+    <img id="avatarPreview" src="" alt="Avatar" />
+    <h2 id="idName"></h2>
+    <p id="idScore"></p>
+    <p class="rank" id="idRank"></p>
   </div>
 
-  <!-- Footer -->
-  <footer class="mt-8 text-neutral-500 text-sm">
-    built for fluent community by <span class="text-green-400">0xbito</span>
-  </footer>
+  <footer>built for fluent community by 0xbito</footer>
 
   <script>
-    const quizForm = document.getElementById("quizForm");
-    const idCard = document.getElementById("idCard");
-    const displayName = document.getElementById("displayName");
-    const quizResult = document.getElementById("quizResult");
-    const userRank = document.getElementById("userRank");
-    const avatarInput = document.getElementById("avatarInput");
-    const avatarBox = document.getElementById("avatarBox");
+    const questions = [
+      { q: "Fluent is a community for?", options: ["AI", "DeFi", "NFTs"], a: 0 },
+      { q: "Which color is in Fluent's theme?", options: ["Green", "Blue", "Red"], a: 0 },
+      { q: "HTML stands for?", options: ["HyperText Markup Language", "Hot Mail", "How To Make Lunch"], a: 0 },
+      { q: "CSS is used for?", options: ["Styling", "Logic", "Databases"], a: 0 },
+      { q: "JS is short for?", options: ["JavaScript", "JavaSystem", "JumpStart"], a: 0 },
+      { q: "2 + 2 = ?", options: ["3", "4", "5"], a: 1 },
+      { q: "Best place to deploy static sites?", options: ["Vercel", "Instagram", "Gmail"], a: 0 },
+      { q: "Fluent IDs are?", options: ["Expressive", "Boring", "Invisible"], a: 0 },
+      { q: "PNG and JPEG are?", options: ["Image formats", "Programming languages", "Blockchains"], a: 0 },
+      { q: "Fluent is powered by?", options: ["Community", "Aliens", "Bankers"], a: 0 }
+    ];
 
-    quizForm.addEventListener("submit", function(e) {
-      e.preventDefault();
+    const ranks = [
+      "Novice", "Learner", "Explorer", "Thinker", "Innovator",
+      "Builder", "Leader", "Visionary", "Master", "Fluent Legend"
+    ];
+
+    const qContainer = document.getElementById("questions");
+    questions.forEach((q, i) => {
+      const div = document.createElement("div");
+      div.innerHTML = `<p>${i + 1}. ${q.q}</p>` +
+        q.options.map((opt, idx) =>
+          `<label><input type="radio" name="q${i}" value="${idx}"> ${opt}</label><br>`
+        ).join("");
+      qContainer.appendChild(div);
+    });
+
+    function submitQuiz() {
+      const name = document.getElementById("userName").value.trim();
+      const avatarFile = document.getElementById("avatarUpload").files[0];
+      if (!name || !avatarFile) {
+        alert("Please enter your name and upload an avatar.");
+        return;
+      }
 
       let score = 0;
-      const answers = new FormData(quizForm);
-      for (let [key, value] of answers.entries()) {
-        score += parseInt(value);
-      }
+      questions.forEach((q, i) => {
+        const ans = document.querySelector(`input[name="q${i}"]:checked`);
+        if (ans && parseInt(ans.value) === q.a) score++;
+      });
 
-      const name = document.getElementById("userName").value || "Anonymous";
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById("avatarPreview").src = e.target.result;
+      };
+      reader.readAsDataURL(avatarFile);
 
-      // Rank system
-      let rank = "";
-      if (score <= 3) rank = "Novice";
-      else if (score <= 6) rank = "Explorer";
-      else if (score <= 8) rank = "Builder";
-      else rank = "Fluent Master";
+      document.getElementById("idName").textContent = name;
+      document.getElementById("idScore").textContent = `Score: ${score}/10`;
+      document.getElementById("idRank").textContent = `Rank: ${ranks[score - 1] || "Unranked"}`;
 
-      displayName.innerText = name;
-      quizResult.innerText = `Your Score: ${score}/10`;
-      userRank.innerText = `Rank: ${rank}`;
-
-      // Avatar preview
-      avatarBox.innerHTML = "";
-      if (avatarInput.files[0]) {
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(avatarInput.files[0]);
-        img.classList.add("w-24", "h-24", "rounded-full", "border-2", "border-green-400", "shadow-lg");
-        avatarBox.appendChild(img);
-      }
-
-      idCard.classList.remove("hidden");
-    });
+      document.getElementById("quizSection").classList.add("hidden");
+      document.getElementById("idCard").classList.remove("hidden");
+    }
   </script>
-
 </body>
 </html>
