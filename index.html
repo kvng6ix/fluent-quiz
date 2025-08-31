@@ -1,164 +1,807 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fluent Quiz</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #0f0f0f, #000000);
-      color: #e0e0e0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      align-items: center;
-      justify-content: center;
-    }
-    h1 {
-      text-align: center;
-      color: #00ff88;
-      text-shadow: 0 0 8px #00ff88;
-    }
-    .card {
-      background: rgba(20, 20, 20, 0.9);
-      border: 1px solid #00ff88;
-      border-radius: 16px;
-      padding: 20px;
-      max-width: 600px;
-      width: 90%;
-      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-      margin-bottom: 20px;
-    }
-    button {
-      background: #00ff88;
-      border: none;
-      padding: 10px 20px;
-      color: #000;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-    button:hover {
-      transform: scale(1.05);
-    }
-    .hidden {
-      display: none;
-    }
-    .id-card {
-      background: linear-gradient(145deg, #101010, #1e1e1e);
-      border: 2px solid #00ff88;
-      border-radius: 20px;
-      padding: 20px;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 0 25px rgba(0, 255, 136, 0.5);
-      animation: fadeIn 1s ease forwards;
-    }
-    .id-card img {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      border: 2px solid #00ff88;
-      margin-bottom: 10px;
-    }
-    .rank {
-      font-size: 1.2em;
-      color: #00ff88;
-      text-shadow: 0 0 10px #00ff88;
-      font-weight: bold;
-    }
-    footer {
-      margin-top: auto;
-      padding: 10px;
-      font-size: 0.9em;
-      color: #888;
-      font-style: italic;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluent Community Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a0033, #330066, #660099);
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="3" fill="%23ff6b6b" opacity="0.3"/><circle cx="80" cy="30" r="2" fill="%234ecdc4" opacity="0.3"/><circle cx="40" cy="70" r="4" fill="%23ffe66d" opacity="0.3"/><circle cx="70" cy="80" r="2" fill="%23ff6b6b" opacity="0.3"/><circle cx="30" cy="40" r="3" fill="%234ecdc4" opacity="0.3"/><circle cx="90" cy="60" r="2" fill="%23ffe66d" opacity="0.3"/><path d="M10,10 Q20,5 30,10 T50,10" stroke="%23ff6b6b" stroke-width="1" fill="none" opacity="0.2"/><path d="M60,20 Q70,15 80,20 T100,20" stroke="%234ecdc4" stroke-width="1" fill="none" opacity="0.2"/></svg>');
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 2px solid #9d4edd;
+            box-shadow: 0 20px 40px rgba(157, 78, 221, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #9d4edd, #7209b7);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '🎨';
+            position: absolute;
+            top: 15px;
+            left: 30px;
+            font-size: 24px;
+        }
+
+        .header::after {
+            content: '🎯';
+            position: absolute;
+            top: 15px;
+            right: 30px;
+            font-size: 24px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .welcome-screen, .quiz-screen, .result-screen, .id-form, .id-display {
+            display: none;
+        }
+
+        .welcome-screen.active, .quiz-screen.active, .result-screen.active, .id-form.active, .id-display.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(157, 78, 221, 0.2);
+            border-radius: 10px;
+            border: 1px solid #9d4edd;
+        }
+
+        .question-number {
+            font-size: 1.2em;
+            color: #c77dff;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ff6b6b;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .question {
+            font-size: 1.4em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            text-align: center;
+            color: #e0aaff;
+        }
+
+        .options {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            padding: 20px;
+            background: rgba(157, 78, 221, 0.1);
+            border: 2px solid #9d4edd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            text-align: left;
+        }
+
+        .option:hover {
+            background: rgba(157, 78, 221, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(157, 78, 221, 0.3);
+        }
+
+        .option.selected {
+            background: rgba(157, 78, 221, 0.5);
+            border-color: #c77dff;
+        }
+
+        .option.correct {
+            background: rgba(34, 197, 94, 0.3);
+            border-color: #22c55e;
+        }
+
+        .option.incorrect {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #9d4edd, #7209b7);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+            min-width: 200px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(157, 78, 221, 0.4);
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 2em;
+            margin: 30px 0;
+            color: #c77dff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0aaff;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(157, 78, 221, 0.1);
+            border: 2px solid #9d4edd;
+            border-radius: 8px;
+            color: white;
+            font-size: 1em;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .photo-upload {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .photo-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid #9d4edd;
+            margin: 0 auto 15px;
+            background: rgba(157, 78, 221, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .id-card {
+            background: linear-gradient(135deg, #1a0033, #330066);
+            border: 2px solid #9d4edd;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .id-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(157, 78, 221, 0.1) 10px,
+                rgba(157, 78, 221, 0.1) 20px
+            );
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .id-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .id-title {
+            font-size: 1.8em;
+            color: #c77dff;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .id-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #9d4edd;
+            margin: 0 auto 20px;
+            background: rgba(157, 78, 221, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .id-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .id-details {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .id-detail {
+            margin-bottom: 12px;
+            font-size: 1em;
+        }
+
+        .id-label {
+            color: #9d4edd;
+            font-weight: bold;
+        }
+
+        .tries-left {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 107, 107, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #ff6b6b;
+            font-size: 0.9em;
+            color: #ff6b6b;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(157, 78, 221, 0.2);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #9d4edd, #c77dff);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Fluent Quiz</h1>
-  <div id="quizSection" class="card">
-    <label>Enter your name:</label><br>
-    <input type="text" id="userName" placeholder="Your name" /><br><br>
-    <label>Upload your avatar:</label><br>
-    <input type="file" id="avatarUpload" accept="image/png, image/jpeg" /><br><br>
-    <div id="questions"></div>
-    <button onclick="submitQuiz()">Submit Quiz</button>
-  </div>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Fluent Community Quiz</h1>
+            <p class="subtitle">Test your knowledge of the Fluent ecosystem</p>
+        </div>
 
-  <div id="idCard" class="id-card hidden">
-    <img id="avatarPreview" src="" alt="Avatar" />
-    <h2 id="idName"></h2>
-    <p id="idScore"></p>
-    <p class="rank" id="idRank"></p>
-  </div>
+        <div class="content">
+            <div class="tries-left">Tries left: <span id="triesLeft">2</span></div>
 
-  <footer>built for fluent community by 0xbito</footer>
+            <!-- Welcome Screen -->
+            <div class="welcome-screen active">
+                <div style="text-align: center; padding: 40px 0;">
+                    <h2 style="color: #c77dff; margin-bottom: 20px;">🌟 Welcome to the Fluent Community Quiz!</h2>
+                    <p style="font-size: 1.2em; margin-bottom: 30px; color: #e0aaff;">
+                        Test your knowledge about Fluent's blended execution network and earn your Expressive ID!
+                    </p>
+                    <div style="background: rgba(157, 78, 221, 0.2); padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+                        <p><strong>📝 Quiz Rules:</strong></p>
+                        <ul style="text-align: left; margin: 15px 0; padding-left: 20px;">
+                            <li>10 multiple choice questions</li>
+                            <li>6 seconds per question</li>
+                            <li>Each correct answer = 1 point</li>
+                            <li>Maximum 2 attempts allowed</li>
+                            <li>Create your Expressive ID based on your score!</li>
+                        </ul>
+                    </div>
+                    <button class="btn" onclick="startQuiz()">🚀 Start Quiz</button>
+                </div>
+            </div>
 
-  <script>
-    const questions = [
-      { q: "Fluent is a community for?", options: ["AI", "DeFi", "NFTs"], a: 0 },
-      { q: "Which color is in Fluent's theme?", options: ["Green", "Blue", "Red"], a: 0 },
-      { q: "HTML stands for?", options: ["HyperText Markup Language", "Hot Mail", "How To Make Lunch"], a: 0 },
-      { q: "CSS is used for?", options: ["Styling", "Logic", "Databases"], a: 0 },
-      { q: "JS is short for?", options: ["JavaScript", "JavaSystem", "JumpStart"], a: 0 },
-      { q: "2 + 2 = ?", options: ["3", "4", "5"], a: 1 },
-      { q: "Best place to deploy static sites?", options: ["Vercel", "Instagram", "Gmail"], a: 0 },
-      { q: "Fluent IDs are?", options: ["Expressive", "Boring", "Invisible"], a: 0 },
-      { q: "PNG and JPEG are?", options: ["Image formats", "Programming languages", "Blockchains"], a: 0 },
-      { q: "Fluent is powered by?", options: ["Community", "Aliens", "Bankers"], a: 0 }
-    ];
+            <!-- Quiz Screen -->
+            <div class="quiz-screen">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                
+                <div class="question-header">
+                    <span class="question-number">Question <span id="currentQuestion">1</span> of 10</span>
+                    <span class="timer" id="timer">6</span>
+                </div>
+                
+                <div class="question" id="questionText"></div>
+                
+                <div class="options" id="optionsContainer"></div>
+            </div>
 
-    const ranks = [
-      "Novice", "Learner", "Explorer", "Thinker", "Innovator",
-      "Builder", "Leader", "Visionary", "Master", "Fluent Legend"
-    ];
+            <!-- Result Screen -->
+            <div class="result-screen">
+                <div style="text-align: center; padding: 40px 0;">
+                    <h2 style="color: #c77dff; margin-bottom: 20px;">🎯 Quiz Complete!</h2>
+                    <div class="score-display">
+                        Your Score: <span id="finalScore">0</span>/10
+                    </div>
+                    <div id="scoreMessage" style="font-size: 1.3em; margin-bottom: 30px; color: #e0aaff;"></div>
+                    <button class="btn" onclick="showIDForm()" style="margin-bottom: 15px;">🎨 Create Expressive ID</button>
+                    <button class="btn" onclick="retryQuiz()" id="retryBtn" style="background: rgba(157, 78, 221, 0.3);">🔄 Try Again</button>
+                </div>
+            </div>
 
-    const qContainer = document.getElementById("questions");
-    questions.forEach((q, i) => {
-      const div = document.createElement("div");
-      div.innerHTML = `<p>${i + 1}. ${q.q}</p>` +
-        q.options.map((opt, idx) =>
-          `<label><input type="radio" name="q${i}" value="${idx}"> ${opt}</label><br>`
-        ).join("");
-      qContainer.appendChild(div);
-    });
+            <!-- ID Form -->
+            <div class="id-form">
+                <h2 style="color: #c77dff; margin-bottom: 20px; text-align: center;">🎨 Create Your Expressive ID</h2>
+                
+                <div class="photo-upload">
+                    <div class="photo-preview" id="photoPreview" onclick="document.getElementById('photoInput').click()">
+                        <span style="color: #9d4edd;">📷 Click to add photo</span>
+                    </div>
+                    <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+                </div>
 
-    function submitQuiz() {
-      const name = document.getElementById("userName").value.trim();
-      const avatarFile = document.getElementById("avatarUpload").files[0];
-      if (!name || !avatarFile) {
-        alert("Please enter your name and upload an avatar.");
-        return;
-      }
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" placeholder="Enter your username" required>
+                </div>
 
-      let score = 0;
-      questions.forEach((q, i) => {
-        const ans = document.querySelector(`input[name="q${i}"]:checked`);
-        if (ans && parseInt(ans.value) === q.a) score++;
-      });
+                <div class="form-group">
+                    <label for="discordRole">Discord Role:</label>
+                    <input type="text" id="discordRole" placeholder="e.g., Community Member, Developer, Artist">
+                </div>
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById("avatarPreview").src = e.target.result;
-      };
-      reader.readAsDataURL(avatarFile);
+                <div class="form-group">
+                    <label for="gooner">Gooner?</label>
+                    <select id="gooner" required>
+                        <option value="">Select...</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
 
-      document.getElementById("idName").textContent = name;
-      document.getElementById("idScore").textContent = `Score: ${score}/10`;
-      document.getElementById("idRank").textContent = `Rank: ${ranks[score - 1] || "Unranked"}`;
+                <button class="btn" onclick="generateID()" style="margin-top: 20px;">✨ Generate Expressive ID</button>
+            </div>
 
-      document.getElementById("quizSection").classList.add("hidden");
-      document.getElementById("idCard").classList.remove("hidden");
-    }
-  </script>
+            <!-- ID Display -->
+            <div class="id-display">
+                <h2 style="color: #c77dff; margin-bottom: 20px; text-align: center;">🎉 Your Expressive ID</h2>
+                
+                <div class="id-card" id="idCard">
+                    <div class="id-content">
+                        <div class="id-title">EXPRESSIVE ID</div>
+                        <div class="id-photo" id="idPhoto">
+                            <span style="color: #9d4edd;">👤</span>
+                        </div>
+                        <div class="id-details">
+                            <div class="id-detail">
+                                <span class="id-label">Username:</span> <span id="idUsername">-</span>
+                            </div>
+                            <div class="id-detail">
+                                <span class="id-label">Blended Rank:</span> <span id="idRank">0/10</span>
+                            </div>
+                            <div class="id-detail">
+                                <span class="id-label">Discord Role:</span> <span id="idDiscordRole">-</span>
+                            </div>
+                            <div class="id-detail">
+                                <span class="id-label">Gooner:</span> <span id="idGooner">-</span>
+                            </div>
+                            <div class="id-detail" style="text-align: center; margin-top: 20px; color: #9d4edd; font-size: 0.9em;">
+                                🎨 Fluent Community Member
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="downloadID()" style="margin: 20px auto; display: block;">💾 Download ID</button>
+                <button class="btn" onclick="resetQuiz()" style="background: rgba(157, 78, 221, 0.3);">🏠 Back to Start</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What is Fluent's primary innovation in blockchain technology?",
+                options: ["A pure EVM rollup", "A blended execution network", "A Solana fork", "A Bitcoin layer 2"],
+                correct: 1
+            },
+            {
+                question: "Which virtual machines does Fluent blend together?",
+                options: ["Only EVM", "EVM and SVM only", "Wasm, EVM, and SVM", "Only Wasm"],
+                correct: 2
+            },
+            {
+                question: "What is the intermediate representation that makes blended execution possible?",
+                options: ["rWasm", "eWasm", "LLVM", "WebAssembly"],
+                correct: 0
+            },
+            {
+                question: "How much funding did Fluent Labs raise in their Series A?",
+                options: ["$5M", "$8M", "$10M", "$12M"],
+                correct: 1
+            },
+            {
+                question: "What programming languages can developers use on Fluent?",
+                options: ["Only Solidity", "Rust and Solidity only", "Rust, TypeScript, Solidity and more", "Only JavaScript"],
+                correct: 2
+            },
+            {
+                question: "What is the name of Fluent's CLI tool for development?",
+                options: ["fluent-cli", "gblend", "blend-tool", "fluent-dev"],
+                correct: 1
+            },
+            {
+                question: "Fluent is built as which type of blockchain solution?",
+                options: ["Ethereum Layer 1", "Ethereum Layer 2", "Standalone blockchain", "Sidechain"],
+                correct: 1
+            },
+            {
+                question: "What is the name of the developer community program?",
+                options: ["Fluent Builders", "Blended Builders Club", "Developer Alliance", "Fluent Academy"],
+                correct: 1
+            },
+            {
+                question: "How much did Fluent raise in their Testnet Round?",
+                options: ["$1.5M", "$2.2M", "$3M", "$4M"],
+                correct: 1
+            },
+            {
+                question: "What makes Fluent different from other rollups?",
+                options: ["Faster transactions", "Lower fees", "Multi-VM blended execution", "Better UX"],
+                correct: 2
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 6;
+        let triesLeft = 2;
+        let shuffledQuestions = [];
+        let userPhoto = null;
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function startQuiz() {
+            if (triesLeft <= 0) {
+                alert('No more attempts remaining!');
+                return;
+            }
+
+            shuffledQuestions = shuffleArray(questions);
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            document.querySelector('.welcome-screen').classList.remove('active');
+            document.querySelector('.quiz-screen').classList.add('active');
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= shuffledQuestions.length) {
+                endQuiz();
+                return;
+            }
+
+            const question = shuffledQuestions[currentQuestionIndex];
+            const progress = ((currentQuestionIndex) / shuffledQuestions.length) * 100;
+            
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            startTimer();
+        }
+
+        function startTimer() {
+            timeLeft = 6;
+            document.getElementById('timer').textContent = timeLeft;
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    selectAnswer(-1); // Auto-move to next question
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(selectedIndex) {
+            clearInterval(timer);
+            
+            const question = shuffledQuestions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach((option, index) => {
+                option.onclick = null; // Disable further clicks
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            if (selectedIndex === question.correct) {
+                score++;
+            }
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                showQuestion();
+            }, 1500);
+        }
+
+        function endQuiz() {
+            triesLeft--;
+            document.getElementById('triesLeft').textContent = triesLeft;
+            
+            document.querySelector('.quiz-screen').classList.remove('active');
+            document.querySelector('.result-screen').classList.add('active');
+            
+            document.getElementById('finalScore').textContent = score;
+            
+            let message = '';
+            if (score >= 8) {
+                message = '🌟 Excellent! You\'re truly blended in the Fluent ecosystem!';
+            } else if (score >= 6) {
+                message = '👍 Great job! You know your Fluent fundamentals!';
+            } else if (score >= 4) {
+                message = '📚 Not bad! Keep learning about Fluent!';
+            } else {
+                message = '🎯 Time to dive deeper into the Fluent community!';
+            }
+            
+            document.getElementById('scoreMessage').textContent = message;
+            
+            const retryBtn = document.getElementById('retryBtn');
+            if (triesLeft <= 0) {
+                retryBtn.style.display = 'none';
+            }
+        }
+
+        function retryQuiz() {
+            if (triesLeft <= 0) {
+                alert('No more attempts remaining!');
+                return;
+            }
+            
+            document.querySelector('.result-screen').classList.remove('active');
+            document.querySelector('.welcome-screen').classList.add('active');
+        }
+
+        function showIDForm() {
+            document.querySelector('.result-screen').classList.remove('active');
+            document.querySelector('.id-form').classList.add('active');
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userPhoto = e.target.result;
+                    const preview = document.getElementById('photoPreview');
+                    preview.innerHTML = `<img src="${userPhoto}" alt="Profile">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function generateID() {
+            const username = document.getElementById('username').value.trim();
+            const discordRole = document.getElementById('discordRole').value.trim();
+            const gooner = document.getElementById('gooner').value;
+
+            if (!username || !gooner) {
+                alert('Please fill in all required fields!');
+                return;
+            }
+
+            document.getElementById('idUsername').textContent = username;
+            document.getElementById('idRank').textContent = score + '/10';
+            document.getElementById('idDiscordRole').textContent = discordRole || 'Community Member';
+            document.getElementById('idGooner').textContent = gooner;
+            
+            const idPhoto = document.getElementById('idPhoto');
+            if (userPhoto) {
+                idPhoto.innerHTML = `<img src="${userPhoto}" alt="Profile">`;
+            }
+
+            document.querySelector('.id-form').classList.remove('active');
+            document.querySelector('.id-display').classList.add('active');
+        }
+
+        function downloadID() {
+            const idCard = document.getElementById('idCard');
+            
+            // Create a canvas to render the ID card
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 800;
+            canvas.height = 600;
+            
+            // Draw background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#1a0033');
+            gradient.addColorStop(1, '#330066');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw border
+            ctx.strokeStyle = '#9d4edd';
+            ctx.lineWidth = 4;
+            ctx.roundRect(20, 20, canvas.width - 40, canvas.height - 40, 15);
+            ctx.stroke();
+            
+            // Add text content
+            ctx.fillStyle = '#c77dff';
+            ctx.font = 'bold 36px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('EXPRESSIVE ID', canvas.width / 2, 100);
+            
+            // Add user details
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'left';
+            const details = [
+                `Username: ${document.getElementById('idUsername').textContent}`,
+                `Blended Rank: ${document.getElementById('idRank').textContent}`,
+                `Discord Role: ${document.getElementById('idDiscordRole').textContent}`,
+                `Gooner: ${document.getElementById('idGooner').textContent}`
+            ];
+            
+            details.forEach((detail, index) => {
+                ctx.fillText(detail, 100, 250 + (index * 40));
+            });
+            
+            // Add footer
+            ctx.fillStyle = '#9d4edd';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🎨 Fluent Community Member', canvas.width / 2, 520);
+            
+            // Download the image
+            const link = document.createElement('a');
+            link.download = `fluent-expressive-id-${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function resetQuiz() {
+            triesLeft = 2;
+            document.getElementById('triesLeft').textContent = triesLeft;
+            document.querySelector('.id-display').classList.remove('active');
+            document.querySelector('.welcome-screen').classList.add('active');
+            
+            // Reset form
+            document.getElementById('username').value = '';
+            document.getElementById('discordRole').value = '';
+            document.getElementById('gooner').value = '';
+            document.getElementById('photoPreview').innerHTML = '<span style="color: #9d4edd;">📷 Click to add photo</span>';
+            userPhoto = null;
+        }
+
+        // Add canvas roundRect support for older browsers
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2;
+                if (h < 2 * r) r = h / 2;
+                this.beginPath();
+                this.moveTo(x + r, y);
+                this.arcTo(x + w, y, x + w, y + h, r);
+                this.arcTo(x + w, y + h, x, y + h, r);
+                this.arcTo(x, y + h, x, y, r);
+                this.arcTo(x, y, x + w, y, r);
+                this.closePath();
+                return this;
+            };
+        }
+    </script>
 </body>
 </html>
