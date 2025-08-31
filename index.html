@@ -3,248 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fluent Community Quiz</title>
+  <title>Fluent Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: url('https://i.ibb.co/hWYPpB1/art-palette-bg.jpg') no-repeat center center fixed;
-      background-size: cover;
+      background: radial-gradient(circle at top, #0f0f0f, #000);
+      font-family: 'Inter', sans-serif;
       color: white;
-      text-align: center;
-      margin: 0;
-      padding: 0;
     }
-
-    .quiz-container {
-      background: rgba(0, 0, 0, 0.8);
-      margin: 40px auto;
-      padding: 20px;
-      border-radius: 12px;
-      width: 500px;
-      box-shadow: 0 0 20px purple;
+    .fade-in {
+      animation: fadeIn 1s ease-in-out;
     }
-
-    button {
-      background: purple;
-      border: none;
-      padding: 10px 20px;
-      color: white;
-      margin-top: 20px;
-      border-radius: 8px;
-      cursor: pointer;
+    .slide-up {
+      animation: slideUp 0.8s ease-in-out;
     }
-
-    button:hover {
-      background: #5e1a8d;
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
-
-    .hidden {
-      display: none;
-    }
-
-    .id-card {
-      display: flex;
-      background: linear-gradient(135deg, black, #1a001a);
-      border: 2px solid purple;
-      border-radius: 12px;
-      margin: 20px auto;
-      width: 600px;
-      padding: 20px;
-      color: white;
-      box-shadow: 0 0 25px purple;
-    }
-
-    .id-left img {
-      width: 150px;
-      height: 150px;
-      border-radius: 8px;
-      border: 2px solid purple;
-      margin-right: 20px;
-      object-fit: cover;
-    }
-
-    .id-right {
-      text-align: left;
-    }
-
-    footer {
-      margin-top: 40px;
-      background: black;
-      padding: 10px;
-      font-size: 14px;
-    }
-
-    label {
-      display: block;
-      margin: 5px 0;
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
   </style>
 </head>
-<body>
-  <div class="quiz-container">
-    <h1>Fluent Community Quiz</h1>
-    <div id="quiz"></div>
-    <div id="timer">Time Left: <span id="time">6</span>s</div>
-    <button id="submit">Submit Answer</button>
-    <div id="results"></div>
-  </div>
+<body class="flex flex-col items-center justify-center min-h-screen px-4">
 
-  <!-- User Details Form -->
-  <div id="detailsForm" class="hidden">
-    <h2>Fill in Your Details</h2>
-    <label>Username: <input type="text" id="username"></label><br>
-    <label>Discord Role: <input type="text" id="discordRole"></label><br>
-    <label>Are you a Gooner? 
-      <select id="gooner">
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-      </select>
-    </label><br>
-    <label>Upload Picture: <input type="file" id="profilePic" accept="image/png, image/jpeg"></label><br>
-    <button id="generateID">Generate Expressive ID</button>
+  <!-- Quiz Container -->
+  <div id="quizContainer" class="bg-neutral-900 shadow-xl rounded-2xl p-6 max-w-xl w-full fade-in">
+    <h1 class="text-3xl font-bold mb-4 text-center text-green-400">Fluent Quiz</h1>
+    
+    <form id="quizForm" class="space-y-6">
+      <div>
+        <label class="block mb-2 font-semibold">Enter your name</label>
+        <input type="text" id="userName" class="w-full p-2 rounded-lg bg-neutral-800 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+      </div>
+
+      <div>
+        <label class="block mb-2 font-semibold">Upload your avatar (PNG/JPG)</label>
+        <input type="file" id="avatarInput" accept="image/png, image/jpeg" class="w-full text-sm">
+      </div>
+
+      <!-- Example Questions -->
+      <div>
+        <p class="font-semibold mb-2">1. What does Fluent focus on?</p>
+        <label class="block"><input type="radio" name="q1" value="1"> DeFi</label>
+        <label class="block"><input type="radio" name="q1" value="0"> Gaming</label>
+      </div>
+
+      <div>
+        <p class="font-semibold mb-2">2. Which is a key feature of Fluent?</p>
+        <label class="block"><input type="radio" name="q2" value="1"> Expressive IDs</label>
+        <label class="block"><input type="radio" name="q2" value="0"> Photo filters</label>
+      </div>
+
+      <button type="submit" class="w-full py-2 rounded-lg bg-green-500 text-black font-bold hover:bg-green-400 transition-colors">
+        Submit & Generate ID
+      </button>
+    </form>
   </div>
 
   <!-- ID Card -->
-  <div id="idCard" class="id-card hidden">
-    <div class="id-left">
-      <img id="idImage" src="" alt="Profile">
-    </div>
-    <div class="id-right">
-      <h2>FLUENT EXPRESSIVE ID</h2>
-      <p><strong>Username:</strong> <span id="idUsername"></span></p>
-      <p><strong>Discord Role:</strong> <span id="idRole"></span></p>
-      <p><strong>Blended Score:</strong> <span id="idScore"></span></p>
-      <p><strong>Rank Title:</strong> <span id="idRank"></span></p>
-      <p><strong>Gooner?:</strong> <span id="idGooner"></span></p>
-    </div>
+  <div id="idCard" class="hidden bg-neutral-900 shadow-2xl rounded-2xl p-6 max-w-md w-full mt-6 text-center slide-up">
+    <h2 class="text-xl font-bold mb-2 text-green-400">FLUENT EXPRESSIVE ID</h2>
+    <div id="avatarBox" class="flex justify-center mb-4"></div>
+    <p id="displayName" class="text-lg font-semibold"></p>
+    <p id="quizResult" class="text-green-300 mt-2"></p>
+    <p id="userRank" class="text-yellow-400 font-bold mt-1"></p>
   </div>
-  <button id="downloadID" class="hidden">Download ID</button>
 
-  <footer>
-    built for fluent community by 0xbito
+  <!-- Footer -->
+  <footer class="mt-8 text-neutral-500 text-sm">
+    built for fluent community by <span class="text-green-400">0xbito</span>
   </footer>
 
-  <!-- html2canvas for PNG download -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-    const quizData = [
-      { q: "What is Fluent's primary innovation in blockchain technology?", a: ["A pure EVM rollup", "A blended execution network", "A Solana fork", "A Bitcoin layer 2"], c: 1 },
-      { q: "Which virtual machines does Fluent blend together?", a: ["Only EVM", "EVM and SVM only", "Wasm, EVM, and SVM", "Only Wasm"], c: 2 },
-      { q: "What is the intermediate representation that makes blended execution possible?", a: ["rWasm", "eWasm", "LLVM", "WebAssembly"], c: 0 },
-      { q: "How much funding did Fluent Labs raise in their Series A?", a: ["$5M", "$8M", "$10M", "$12M"], c: 1 },
-      { q: "What programming languages can developers use on Fluent?", a: ["Only Solidity", "Rust and Solidity only", "Rust, TypeScript, Solidity and more", "Only JavaScript"], c: 2 },
-      { q: "What is the name of Fluent's CLI tool for development?", a: ["fluent-cli", "gblend", "blend-tool", "fluent-dev"], c: 1 },
-      { q: "Fluent is built as which type of blockchain solution?", a: ["Ethereum Layer 1", "Ethereum Layer 2", "Standalone blockchain", "Sidechain"], c: 1 },
-      { q: "What is the name of the developer community program?", a: ["Fluent Builders", "Blended Builders Club", "Developer Alliance", "Fluent Academy"], c: 1 },
-      { q: "How much did Fluent raise in their Testnet Round?", a: ["$1.5M", "$2.2M", "$3M", "$4M"], c: 1 },
-      { q: "What makes Fluent different from other rollups?", a: ["Faster transactions", "Lower fees", "Multi-VM blended execution", "Better UX"], c: 2 }
-    ];
+    const quizForm = document.getElementById("quizForm");
+    const idCard = document.getElementById("idCard");
+    const displayName = document.getElementById("displayName");
+    const quizResult = document.getElementById("quizResult");
+    const userRank = document.getElementById("userRank");
+    const avatarInput = document.getElementById("avatarInput");
+    const avatarBox = document.getElementById("avatarBox");
 
-    const ranks = ["Novice", "Apprentice", "Explorer", "Adept", "Scholar", "Builder", "Innovator", "Visionary", "Pioneer", "Blended Master"];
+    quizForm.addEventListener("submit", function(e) {
+      e.preventDefault();
 
-    let currentQuestion = 0;
-    let score = 0;
-    let timer;
-    let attempts = localStorage.getItem("attempts") || 0;
-
-    const quizContainer = document.getElementById("quiz");
-    const submitBtn = document.getElementById("submit");
-    const resultsContainer = document.getElementById("results");
-    const detailsForm = document.getElementById("detailsForm");
-
-    function shuffle(array) {
-      return array.sort(() => Math.random() - 0.5);
-    }
-
-    function startQuiz() {
-      if (attempts >= 2) {
-        quizContainer.innerHTML = "<p>You have used all 2 attempts.</p>";
-        submitBtn.style.display = "none";
-        return;
-      }
-      shuffle(quizData);
-      showQuestion();
-    }
-
-    function showQuestion() {
-      clearInterval(timer);
-      document.getElementById("time").textContent = 6;
-      timer = setInterval(() => {
-        let t = parseInt(document.getElementById("time").textContent);
-        if (t <= 1) {
-          clearInterval(timer);
-          nextQuestion();
-        } else {
-          document.getElementById("time").textContent = t - 1;
-        }
-      }, 1000);
-
-      let q = quizData[currentQuestion];
-      let output = `<h3>${q.q}</h3>`;
-      q.a.forEach((ans, i) => {
-        output += `<label><input type="radio" name="answer" value="${i}"> ${ans}</label><br>`;
-      });
-      quizContainer.innerHTML = output;
-    }
-
-    function nextQuestion() {
-      const selected = document.querySelector("input[name=answer]:checked");
-      if (selected && parseInt(selected.value) === quizData[currentQuestion].c) {
-        score++;
-      } else {
-        const labels = quizContainer.querySelectorAll("label");
-        if (selected) selected.style.color = "red";
-        labels[quizData[currentQuestion].c].style.color = "green";
-      }
-      currentQuestion++;
-      if (currentQuestion < quizData.length) {
-        showQuestion();
-      } else {
-        endQuiz();
-      }
-    }
-
-    function endQuiz() {
-      clearInterval(timer);
-      resultsContainer.innerHTML = `You scored ${score}/10`;
-      localStorage.setItem("attempts", ++attempts);
-      detailsForm.classList.remove("hidden");
-      quizContainer.innerHTML = "";
-      submitBtn.style.display = "none";
-    }
-
-    submitBtn.addEventListener("click", nextQuestion);
-
-    document.getElementById("generateID").addEventListener("click", () => {
-      document.getElementById("idUsername").textContent = document.getElementById("username").value;
-      document.getElementById("idRole").textContent = document.getElementById("discordRole").value;
-      document.getElementById("idScore").textContent = `${score}/10`;
-      document.getElementById("idRank").textContent = ranks[score - 1] || "Unranked";
-      document.getElementById("idGooner").textContent = document.getElementById("gooner").value;
-
-      const file = document.getElementById("profilePic").files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          document.getElementById("idImage").src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+      let score = 0;
+      const answers = new FormData(quizForm);
+      for (let [key, value] of answers.entries()) {
+        score += parseInt(value);
       }
 
-      document.getElementById("idCard").classList.remove("hidden");
-      document.getElementById("downloadID").classList.remove("hidden");
+      const name = document.getElementById("userName").value || "Anonymous";
+
+      // Rank system
+      let rank = "";
+      if (score <= 3) rank = "Novice";
+      else if (score <= 6) rank = "Explorer";
+      else if (score <= 8) rank = "Builder";
+      else rank = "Fluent Master";
+
+      displayName.innerText = name;
+      quizResult.innerText = `Your Score: ${score}/10`;
+      userRank.innerText = `Rank: ${rank}`;
+
+      // Avatar preview
+      avatarBox.innerHTML = "";
+      if (avatarInput.files[0]) {
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(avatarInput.files[0]);
+        img.classList.add("w-24", "h-24", "rounded-full", "border-2", "border-green-400", "shadow-lg");
+        avatarBox.appendChild(img);
+      }
+
+      idCard.classList.remove("hidden");
     });
-
-    document.getElementById("downloadID").addEventListener("click", () => {
-      html2canvas(document.getElementById("idCard")).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "expressive_id.png";
-        link.href = canvas.toDataURL();
-        link.click();
-      });
-    });
-
-    startQuiz();
   </script>
+
 </body>
 </html>
