@@ -13,11 +13,12 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1a0033, #330066, #660099);
-            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="3" fill="%23ff6b6b" opacity="0.3"/><circle cx="80" cy="30" r="2" fill="%234ecdc4" opacity="0.3"/><circle cx="40" cy="70" r="4" fill="%23ffe66d" opacity="0.3"/><circle cx="70" cy="80" r="2" fill="%23ff6b6b" opacity="0.3"/><circle cx="30" cy="40" r="3" fill="%234ecdc4" opacity="0.3"/><circle cx="90" cy="60" r="2" fill="%23ffe66d" opacity="0.3"/><path d="M10,10 Q20,5 30,10 T50,10" stroke="%23ff6b6b" stroke-width="1" fill="none" opacity="0.2"/><path d="M60,20 Q70,15 80,20 T100,20" stroke="%234ecdc4" stroke-width="1" fill="none" opacity="0.2"/></svg>');
+            background: linear-gradient(135deg, #0a0a0a, #1a1a1a, #2a2a2a);
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="3" fill="%239d4edd" opacity="0.3"/><circle cx="80" cy="30" r="2" fill="%23c77dff" opacity="0.3"/><circle cx="40" cy="70" r="4" fill="%23e0aaff" opacity="0.3"/><circle cx="70" cy="80" r="2" fill="%239d4edd" opacity="0.3"/><circle cx="30" cy="40" r="3" fill="%23c77dff" opacity="0.3"/><circle cx="90" cy="60" r="2" fill="%23e0aaff" opacity="0.3"/><path d="M10,10 Q20,5 30,10 T50,10" stroke="%239d4edd" stroke-width="1" fill="none" opacity="0.2"/><path d="M60,20 Q70,15 80,20 T100,20" stroke="%23c77dff" stroke-width="1" fill="none" opacity="0.2"/></svg>');
             min-height: 100vh;
             color: white;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
@@ -26,12 +27,13 @@
         .container {
             max-width: 800px;
             width: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             border: 2px solid #9d4edd;
             box-shadow: 0 20px 40px rgba(157, 78, 221, 0.3);
             overflow: hidden;
+            margin-bottom: 20px;
         }
 
         .header {
@@ -228,7 +230,7 @@
         }
 
         .id-card {
-            background: linear-gradient(135deg, #1a0033, #330066);
+            background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
             border: 2px solid #9d4edd;
             border-radius: 15px;
             padding: 30px;
@@ -483,6 +485,11 @@
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer style="text-align: center; padding: 20px; color: #666666; font-size: 0.9em; margin-top: auto;">
+        <p>Built for Fluent Community by <span style="color: #9d4edd; font-weight: bold;">0xBito</span></p>
+    </footer>
+
     <script>
         const questions = [
             {
@@ -718,9 +725,6 @@
         }
 
         function downloadID() {
-            const idCard = document.getElementById('idCard');
-            
-            // Create a canvas to render the ID card
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = 800;
@@ -728,8 +732,8 @@
             
             // Draw background
             const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            gradient.addColorStop(0, '#1a0033');
-            gradient.addColorStop(1, '#330066');
+            gradient.addColorStop(0, '#0a0a0a');
+            gradient.addColorStop(1, '#1a1a1a');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
@@ -739,38 +743,122 @@
             ctx.roundRect(20, 20, canvas.width - 40, canvas.height - 40, 15);
             ctx.stroke();
             
-            // Add text content
-            ctx.fillStyle = '#c77dff';
-            ctx.font = 'bold 36px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('EXPRESSIVE ID', canvas.width / 2, 100);
+            // Add shimmer effect pattern
+            ctx.strokeStyle = 'rgba(157, 78, 221, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 20; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * 40, 0);
+                ctx.lineTo(i * 40 + canvas.height, canvas.height);
+                ctx.stroke();
+            }
             
-            // Add user details
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '24px Arial';
-            ctx.textAlign = 'left';
-            const details = [
-                `Username: ${document.getElementById('idUsername').textContent}`,
-                `Blended Rank: ${document.getElementById('idRank').textContent}`,
-                `Discord Role: ${document.getElementById('idDiscordRole').textContent}`,
-                `Gooner: ${document.getElementById('idGooner').textContent}`
-            ];
+            // Function to draw the ID content after image loads (if any)
+            const drawIDContent = () => {
+                // Add title
+                ctx.fillStyle = '#c77dff';
+                ctx.font = 'bold 36px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('EXPRESSIVE ID', canvas.width / 2, 100);
+                
+                // Draw profile circle background
+                const centerX = canvas.width / 2;
+                const centerY = 180;
+                const radius = 60;
+                
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius + 3, 0, 2 * Math.PI);
+                ctx.fillStyle = '#9d4edd';
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fillStyle = '#2a2a2a';
+                ctx.fill();
+                ctx.clip();
+                
+                // If user uploaded a photo, draw it
+                if (userPhoto) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Draw user image in circle
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                        ctx.clip();
+                        
+                        // Calculate scaling to fill the circle
+                        const scale = Math.max((radius * 2) / img.width, (radius * 2) / img.height);
+                        const scaledWidth = img.width * scale;
+                        const scaledHeight = img.height * scale;
+                        
+                        ctx.drawImage(
+                            img, 
+                            centerX - scaledWidth / 2, 
+                            centerY - scaledHeight / 2, 
+                            scaledWidth, 
+                            scaledHeight
+                        );
+                        ctx.restore();
+                        
+                        // Continue with the rest of the drawing
+                        finishDrawing();
+                    };
+                    img.src = userPhoto;
+                } else {
+                    // Draw default avatar
+                    ctx.fillStyle = '#9d4edd';
+                    ctx.font = '48px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('👤', centerX, centerY + 15);
+                    finishDrawing();
+                }
+            };
             
-            details.forEach((detail, index) => {
-                ctx.fillText(detail, 100, 250 + (index * 40));
-            });
+            const finishDrawing = () => {
+                // Reset clipping
+                ctx.restore();
+                ctx.save();
+                
+                // Add user details
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 24px Arial';
+                ctx.textAlign = 'left';
+                
+                const details = [
+                    `Username: ${document.getElementById('idUsername').textContent}`,
+                    `Blended Rank: ${document.getElementById('idRank').textContent}`,
+                    `Discord Role: ${document.getElementById('idDiscordRole').textContent}`,
+                    `Gooner: ${document.getElementById('idGooner').textContent}`
+                ];
+                
+                details.forEach((detail, index) => {
+                    ctx.fillText(detail, 80, 300 + (index * 35));
+                });
+                
+                // Add footer
+                ctx.fillStyle = '#9d4edd';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('🎨 Fluent Community Member', canvas.width / 2, 520);
+                
+                // Add timestamp
+                ctx.fillStyle = '#666666';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'right';
+                const date = new Date().toLocaleDateString();
+                ctx.fillText(`Generated: ${date}`, canvas.width - 40, 560);
+                
+                // Download the image
+                const link = document.createElement('a');
+                link.download = `fluent-expressive-id-${document.getElementById('idUsername').textContent}-${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            };
             
-            // Add footer
-            ctx.fillStyle = '#9d4edd';
-            ctx.font = '20px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('🎨 Fluent Community Member', canvas.width / 2, 520);
-            
-            // Download the image
-            const link = document.createElement('a');
-            link.download = `fluent-expressive-id-${Date.now()}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
+            // Start the drawing process
+            ctx.save();
+            drawIDContent();
         }
 
         function resetQuiz() {
